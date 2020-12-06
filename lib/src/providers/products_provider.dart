@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_form_validation/src/shared_preferences/user_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter_form_validation/src/models/product_model.dart';
@@ -9,10 +10,11 @@ import 'package:mime/mime.dart';
 class ProductsProvider {
 
   final String _url = 'https://flutter-proyectos-c866b-default-rtdb.europe-west1.firebasedatabase.app';
+  final _prefs = new UserPreferences();
 
   Future<bool> insertProduct(ProductModel product) async {
     
-    final url = '$_url/productos.json';
+    final url = '$_url/productos.json?auth=${_prefs.token}';
     
     final resp = await http.post(url, body: productModelToJson(product) );
 
@@ -25,7 +27,7 @@ class ProductsProvider {
 
   Future<bool> editProduct(ProductModel product) async {
 
-    final url = '$_url/productos/${product.id}.json';
+    final url = '$_url/productos/${product.id}.json?auth=${_prefs.token}';
 
     final resp = await http.put(url, body: productModelToJson(product) );
 
@@ -39,7 +41,7 @@ class ProductsProvider {
 
   Future<int> removeProduct(String id) async {
 
-    final url = '$_url/productos/$id.json';
+    final url = '$_url/productos/$id.json?auth=${_prefs.token}';
 
     final resp = await http.delete(url);
 
@@ -51,13 +53,14 @@ class ProductsProvider {
 
   Future<List<ProductModel>> loadProducts() async {
 
-    final url = '$_url/productos.json';
+    final url = '$_url/productos.json?auth=${_prefs.token}';
     final resp = await http.get(url);
 
     final Map<String, dynamic> decodedData = json.decode(resp.body);
     final List<ProductModel> products = new List();
 
     if(decodedData == null) return [];
+    if(decodedData['error'] != null) return [];
 
     decodedData.forEach((key, product) {
       final prodTemp = ProductModel.fromJson(product);

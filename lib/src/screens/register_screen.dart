@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_validation/src/blocs/login_bloc.dart';
 import 'package:flutter_form_validation/src/blocs/provider.dart';
 import 'package:flutter_form_validation/src/providers/user_provider.dart';
-import 'package:flutter_form_validation/src/utils/utils.dart' as Utils;
+import 'package:flutter_form_validation/src/utils/utils.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
 
   final userProvider = new UserProvider();
 
@@ -25,9 +25,9 @@ class LoginScreen extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
           gradient: LinearGradient(colors: <Color>[
-        Color.fromRGBO(63, 63, 156, 1),
-        Color.fromRGBO(90, 70, 178, 0.9),
-      ])),
+            Color.fromRGBO(63, 63, 156, 1),
+            Color.fromRGBO(90, 70, 178, 0.9),
+          ])),
     );
 
     final circle = Container(
@@ -80,8 +80,8 @@ class LoginScreen extends StatelessWidget {
         children: [
           SafeArea(
               child: Container(
-            height: 200.0,
-          )),
+                height: 200.0,
+              )),
           Container(
             width: size.width * 0.85,
             padding: EdgeInsets.symmetric(vertical: 50.0),
@@ -99,7 +99,7 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'Iniciar sesión',
+                  'Crear cuenta',
                   style: TextStyle(fontSize: 20.0),
                 ),
                 SizedBox(
@@ -118,8 +118,8 @@ class LoginScreen extends StatelessWidget {
             ),
           ),
           FlatButton(
-              onPressed: () => Navigator.pushReplacementNamed(context, 'registro'),
-              child: Text('Nueva cuenta')
+              onPressed: () => Navigator.pushReplacementNamed(context, 'login'),
+              child: Text('¿Ya tienes cuenta?')
           ),
           SizedBox(
             height: 30.0,
@@ -168,7 +168,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 hintText: "12345678",
                 labelText: "Contraseña",
-              errorText: snapshot.error
+                errorText: snapshot.error
             ),
             onChanged: (value) => bloc.changePassword(value),
           ),
@@ -180,17 +180,17 @@ class LoginScreen extends StatelessWidget {
   Widget _submitButton(LoginBloc bloc) {
 
     return StreamBuilder(
-      stream: bloc.formValidStream,
+        stream: bloc.formValidStream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           return RaisedButton(
-            onPressed: snapshot.hasData ? () => _login(bloc, context) : null,
+            onPressed: snapshot.hasData ? () => _register(bloc, context) : null,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
             elevation: 0,
             color: Colors.deepPurple,
             textColor: Colors.white,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
-              child: Text('Iniciar sesión'),
+              child: Text('Registrarme'),
             ),
           );
 
@@ -198,17 +198,17 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  _login(LoginBloc bloc, BuildContext context) async {
+  _register(LoginBloc bloc, BuildContext context) async {
 
-    Map info =  await userProvider.login(bloc.email, bloc.password);
-    print(info);
+    final info = await userProvider.newUser(bloc.email, bloc.password);
 
     if( info['ok'] ) {
       Navigator.pushReplacementNamed(context, 'home');
     } else {
-      Utils.showAlert(context, info['msg']);
+      showAlert(context, info['msg']);
     }
 
+    // Navigator.pushReplacementNamed(context, 'home');
   }
 
 }

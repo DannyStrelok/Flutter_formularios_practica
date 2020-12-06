@@ -1,9 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_form_validation/src/blocs/products_bloc.dart';
+import 'package:flutter_form_validation/src/blocs/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_form_validation/src/models/product_model.dart';
-import 'package:flutter_form_validation/src/providers/products_provider.dart';
 import 'package:flutter_form_validation/src/utils/utils.dart' as Utils;
 
 class ProductScreen extends StatefulWidget {
@@ -16,8 +17,10 @@ class _ProductScreenState extends State<ProductScreen> {
 
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  ProductsBloc productsBloc;
   ProductModel product = new ProductModel();
-  final productProvider = new ProductsProvider();
+
   bool _isSaving = false;
 
   File _image;
@@ -25,6 +28,8 @@ class _ProductScreenState extends State<ProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    productsBloc = Provider.productsBloc(context);
 
     final ProductModel productArguments = ModalRoute.of(context).settings.arguments;
     if(productArguments != null) {
@@ -133,24 +138,23 @@ class _ProductScreenState extends State<ProductScreen> {
       _isSaving = true;
     });
 
-
     if(_image != null) {
-      product.fotoUrl = await productProvider.uploadPicture(_image);
+      product.fotoUrl = await productsBloc.uploadPicture(_image);
 
     }
 
     if(product.id == null){
-      productProvider.insertProduct(product);
+      productsBloc.insertProduct(product);
     } else {
-      productProvider.editProduct(product);
+      productsBloc.updateProduct(product);
     }
 
     // setState(() {
     //   _isSaving = false;
     // });
-    showSnackbar('Registro guardado');
+    // showSnackbar('Registro guardado');
 
-    Navigator.popAndPushNamed(context, 'home');
+    Navigator.pop(context);
 
   }
 
